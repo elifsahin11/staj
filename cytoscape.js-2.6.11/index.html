@@ -1,0 +1,181 @@
+<html>
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<link rel="stylesheet" type="text/css href="jquery.qtip.min.css">
+<script src="jquery.min.js"></script>
+<script src="cytoscape.min.js"></script>
+<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="dimple.min.js"> </script>
+<script src="jquery.qtip.min.js""> </script>
+<style>
+    #cy {
+      height: 500px;
+      width: 800px;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+	#chart {
+		height: 500px;
+		width: 900px;
+		position: absolute;
+		left: 900px;
+		top : 0;
+	}
+</style>
+</head>
+<body>
+	<div id="cy"> </div>
+	<div id="chart"> </div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	var _elements = {nodes : [], edges : []};
+	d3.json('10.150.25.16:8080/getGraphData', function(data) {
+		alert(data);
+		/*for(var i = 0; i < data.length; ++i) {
+			var dict = {data: { id: data[i].index, name: data[i].director }};
+			_elements.nodes.push(dict);
+		}
+		
+		//console.log(_elements.nodes);
+		
+		var turn = 0;
+		for(var i = 0; i < data.length; ++i) {
+			var dict;
+			if(turn + 1  == data.length)
+				dict = {data : {source : _elements.nodes[turn].data.id, target: _elements.nodes[0].data.id} };
+	
+			else
+				dict = {data : {source : _elements.nodes[turn].data.id, target: _elements.nodes[turn + 1].data.id} };
+			++turn;	
+			_elements.edges.push(dict);
+		} */
+		
+		var cy = cytoscape({
+			
+			container : document.getElementById('cy'),
+
+			style: cytoscape.stylesheet()
+            	.selector('node')
+                	.css({ 'content': 'data(name)', 'background-color': 'blue', 'text-valign': 'center', 'color': 'white', 'text-outline-width': 2, 'text-outline-color': '#666', 'shape': 'vee', 'text-valign': 'bottom' })
+                .selector('edge')
+                	.css({ 'target-arrow-shape': 'triangle', 'target-arrow-fill': 'filled', 'width': 2 })
+                .selector(':selected')
+                	.css({ 'background-color': 'black', 'line-color': 'black', 'target-arrow-color': 'black', 'source-arrow-color': 'black' })
+                .selector('.faded')
+                	.css({ 'opacity': 0.25, 'text-opacity': 0 }),
+
+			//elements : _elements,
+			
+			elements: data,
+			headless: false,
+			wheelSensitivity: 0.2
+		})
+
+		cy.ready(function () {
+			window.cy = cy;
+			cy.elements().unselectify();
+
+			cy.on('tap', 'node', function (e) {
+				var node = e.cyTarget, elements = cy.elements();
+				elements.removeClass('faded');
+				for(var i = 0; i < elements.length; ++i) {
+					if(elements[i] == node) continue;
+					elements[i].addClass('faded');
+				}
+				
+				node.qtip({
+					content : "hebele",
+					show: {event: e.type, ready: true},
+					hide: {event: 'mouseout unfocus'}
+				});
+
+			});
+
+			cy.on('tap', function(e) {
+				if(e.cyTarget == cy) {
+					cy.elements().removeClass('faded');
+				}
+			});	
+		});
+		
+		cy.layout({name: 'circle'});		
+		//cy.userZoomingEnabled(true);
+		//cy.userPanningEnabled(false);
+		
+		var svg = dimple.newSvg('#chart', 800,560);
+
+		var myChart = new dimple.chart(svg, data);
+		myChart.setBounds(120, 50, 600, 355);
+
+		var x = myChart.addCategoryAxis("x", "year");
+		x.addOrderRule("Date");
+		myChart.addCategoryAxis("y", "director");
+		myChart.addSeries("title", dimple.plot.bar);
+		myChart.draw();
+	
+		/*var x = myChart.addCategoryAxis("x", "director");
+		x.addOrderRule("Maker");
+		x.title = '';	
+		
+		myChart.addLogAxis("y", "Potential number of units affected");
+		var mySeries = myChart.addSeries(["name", "actors"], dimple.plot.bar);
+
+		mySeries.getTooltipText = function (e) {
+			console.log("dsnkaldhsldhasl");
+			var datum = jQuery.parseJSON(e.aggField[1]);
+			var titles = [];
+			titles['name'] = 'Record name';
+			titles['title'] = 'Title';
+			titles['year'] = 'Release Year';
+			titles['genre'] = 'Genre';
+			titles['index'] = 'Index';
+			var html = '';
+			html += '<span class="maker">'+e.aggField[0]+'</span>';
+			html += '<br /><br />';
+		$.each(datum.items, function(index1, element) {
+			$.each(element, function(index2, item) {
+				$.each(item, function(key, value) {
+					if (key === 'models') {
+						if (value.length == 1) {
+							html +=  '<strong>Model</strong>:';
+					  	}
+					  	else {
+							html +=  '<strong>Models</strong>:';
+					  	}
+					  	html += '<ul>';
+					  	$.each(value, function(vk, val) {
+							html += '<li>'+val+'</li>';
+					  	});
+					  	html += '</ul>';
+					}
+					else {
+					  	html +=  '<em>'+titles[key]+'</em>: '+value+'<br /><br />';
+					}
+				});
+			});
+		});
+		$("#RecallDetails").html(html);
+
+		return [
+		"director: " + e.aggField[0],
+		"Potential number of units affected: " + 
+		parseInt(e.cy).toLocaleString('en')
+		];
+		};
+
+		
+		myChart.ease = "elastic";
+		myChart.draw(1000);	*/
+
+		
+	});
+});
+
+
+</script>
+</body>
+</html>

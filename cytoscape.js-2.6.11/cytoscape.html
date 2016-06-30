@@ -1,0 +1,152 @@
+<html>
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="cytoscape.min.js"></script>
+<style>
+    #cy {
+      height: 300px;
+      width: 800px;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+</style>
+</head>
+<body>
+<div id="cy">
+</div>
+<script type="text/javascript">
+	$('#cy').cytoscape({
+
+            style: cytoscape.stylesheet()
+                .selector('node')
+                .css({
+                'content': 'data(name)',
+                    'text-valign': 'center',
+                    'color': 'white',
+                    'text-outline-width': 2,
+                    'text-outline-color': '#888'
+            })
+                .selector('edge')
+                .css({
+                'target-arrow-shape': 'triangle'
+            })
+                .selector(':selected')
+                .css({
+                'background-color': 'black',
+                    'line-color': 'black',
+                    'target-arrow-color': 'black',
+                    'source-arrow-color': 'black'
+            })
+                .selector('.faded')
+                .css({
+                'opacity': 0.25,
+                    'text-opacity': 0
+            }),
+
+
+            elements: {
+                nodes: [{
+                    data: {
+                        id: 'j',
+                        name: 'Jerry'
+                    }
+                }, {
+                    data: {
+                        id: 'e',
+                        name: 'Elaine'
+                    }
+                }, {
+                    data: {
+                        id: 'k',
+                        name: 'Kramer'
+                    }
+                }, {
+                    data: {
+                        id: 'g',
+                        name: 'George'
+                    }
+                }],
+                edges: [{
+                    data: {
+                        source: 'j',
+                        target: 'e'
+                    }
+                }, {
+                    data: {
+                        source: 'j',
+                        target: 'k'
+                    }
+                }, {
+                    data: {
+                        source: 'j',
+                        target: 'g'
+                    }
+                }, {
+                    data: {
+                        source: 'e',
+                        target: 'j'
+                    }
+                }, {
+                    data: {
+                        source: 'e',
+                        target: 'k'
+                    }
+                }, {
+                    data: {
+                        source: 'k',
+                        target: 'j'
+                    }
+                }, {
+                    data: {
+                        source: 'k',
+                        target: 'e'
+                    }
+                }, {
+                    data: {
+                        source: 'k',
+                        target: 'g'
+                    }
+                }, {
+                    data: {
+                        source: 'g',
+                        target: 'j'
+                    }
+                }]
+            },
+
+            ready: function() {
+                window.cy = this;
+
+                // giddy up...
+
+                cy.elements().unselectify();
+
+                cy.on('tap', 'node', function(e) {
+                    var node = e.cyTarget;
+                    var neighborhood = node.neighborhood().add(node);
+
+                    cy.elements().addClass('faded');
+                    neighborhood.removeClass('faded');
+                });
+
+                cy.on('tap', function(e) {
+                    if (e.cyTarget === cy) {
+                        cy.elements().removeClass('faded');
+                    }
+                });
+            }
+
+        });
+
+
+ // on dom ready
+
+/*
+{"_id": "57612e4ba26703f92a1f65ed","index": 0,"title": "How I Met Your Mother","year": 2004,"genre": "action","director": "Adela Melendez","actors": [{"id": 0, "name": "Melton Davis"}, { "id": 1,"name": "Jasmine Duncan" }]}
+*/
+</script>
+</body>
+</html>
